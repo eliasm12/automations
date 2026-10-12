@@ -1,0 +1,215 @@
+# SPC III 5000-48 dashboard for Home Assistant's Raw configuration editor.
+# Entity IDs are Home Assistant's expected defaults. Check one in
+# Settings > Devices & services > MQTT > Alpha OutBack SPC III 5000-48.
+# If yours differ, replace the sensor IDs before saving.
+views:
+  - title: Inverter
+    path: spc-inverter
+    icon: mdi:solar-power
+    type: sections
+    max_columns: 3
+    sections:
+      # Mode L/B comes from the inverter; PV production is separate.
+      - type: grid
+        column_span: 3
+        cards:
+          - type: markdown
+            title: Current inverter source
+            entity_id:
+              - sensor.alpha_outback_spc_iii_5000_48_operating_mode_code
+              - sensor.alpha_outback_spc_iii_5000_48_pv_power
+            content: |
+              {% set mode = states('sensor.alpha_outback_spc_iii_5000_48_operating_mode_code') %}
+              {% set pv = states('sensor.alpha_outback_spc_iii_5000_48_pv_power') %}
+              {% if mode == 'L' %}
+              # 🔌 LINE MODE
+              <ha-alert alert-type="info">The inverter reports Line mode.</ha-alert>
+              {% elif mode == 'B' %}
+              # 🔋 BATTERY MODE
+              <ha-alert alert-type="warning">The inverter reports Battery mode.</ha-alert>
+              {% elif mode in ['unknown', 'unavailable'] %}
+              # ⚠️ MODE DATA UNAVAILABLE
+              Check the MQTT sensor and inverter app.
+              {% else %}
+              # ℹ️ MODE {{ mode }}
+              This mode code has not been identified yet.
+              {% endif %}
+              ---
+              {% if pv | float(0) > 0 %}
+              ## ☀️ SOLAR PRODUCING · {{ pv }} W
+              {% elif pv in ['unknown', 'unavailable'] %}
+              Solar reading unavailable.
+              {% else %}
+              Solar idle · {{ pv }} W
+              {% endif %}
+
+      - type: grid
+        column_span: 3
+        cards:
+          - type: entities
+            title: Source priorities
+            show_header_toggle: false
+            entities:
+              - entity: select.alpha_outback_spc_iii_5000_48_output_source_priority
+                name: Output priority
+                icon: mdi:swap-horizontal
+              - entity: select.alpha_outback_spc_iii_5000_48_charger_source_priority
+                name: Battery charging source
+                icon: mdi:battery-charging
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Live power
+            icon: mdi:solar-power
+          - type: tile
+            entity: sensor.alpha_outback_spc_iii_5000_48_pv_power
+            name: Solar input
+            icon: mdi:white-balance-sunny
+          - type: tile
+            entity: sensor.alpha_outback_spc_iii_5000_48_output_power
+            name: Inverter output
+            icon: mdi:home-lightning-bolt
+          - type: gauge
+            entity: sensor.alpha_outback_spc_iii_5000_48_load
+            name: Inverter load
+            min: 0
+            max: 100
+            needle: true
+            segments:
+              - from: 0
+                color: var(--success-color)
+              - from: 70
+                color: var(--warning-color)
+              - from: 90
+                color: var(--error-color)
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Battery
+            icon: mdi:battery
+          - type: gauge
+            entity: sensor.alpha_outback_spc_iii_5000_48_battery_capacity
+            name: Battery level
+            min: 0
+            max: 100
+            needle: true
+            segments:
+              - from: 0
+                color: var(--error-color)
+              - from: 20
+                color: var(--warning-color)
+              - from: 50
+                color: var(--success-color)
+          - type: entities
+            title: Battery readings
+            show_header_toggle: false
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_battery_voltage
+                name: Voltage
+                icon: mdi:current-dc
+              - entity: sensor.alpha_outback_spc_iii_5000_48_battery_charge_current
+                name: Charge current
+                icon: mdi:battery-charging
+              - entity: sensor.alpha_outback_spc_iii_5000_48_battery_discharge_current
+                name: Discharge current
+                icon: mdi:battery-minus
+          - type: history-graph
+            title: Battery level
+            hours_to_show: 24
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_battery_capacity
+                name: Battery (%)
+          - type: markdown
+            content: >-
+              Battery capacity is the inverter's estimate.
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Last 24 hours
+            icon: mdi:chart-line
+          - type: history-graph
+            title: Solar and output power
+            hours_to_show: 24
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_pv_power
+                name: Solar (W)
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_power
+                name: Output (W)
+          - type: history-graph
+            title: Grid and output voltage
+            hours_to_show: 24
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_grid_voltage
+                name: Grid (V)
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_voltage
+                name: Output (V)
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Solar and grid
+            icon: mdi:transmission-tower
+          - type: entities
+            title: Input
+            show_header_toggle: false
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_pv_power
+                name: Solar power
+                icon: mdi:white-balance-sunny
+              - entity: sensor.alpha_outback_spc_iii_5000_48_pv_voltage
+                name: Solar voltage
+                icon: mdi:solar-panel
+              - entity: sensor.alpha_outback_spc_iii_5000_48_grid_voltage
+                name: Grid voltage
+                icon: mdi:transmission-tower
+              - entity: sensor.alpha_outback_spc_iii_5000_48_grid_frequency
+                name: Grid frequency
+                icon: mdi:sine-wave
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Inverter output
+            icon: mdi:home-lightning-bolt
+          - type: entities
+            title: AC output
+            show_header_toggle: false
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_power
+                name: Active power
+                icon: mdi:flash
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_apparent_power
+                name: Apparent power
+                icon: mdi:flash-outline
+              - entity: sensor.alpha_outback_spc_iii_5000_48_load
+                name: Load
+                icon: mdi:gauge
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_voltage
+                name: Output voltage
+                icon: mdi:sine-wave
+              - entity: sensor.alpha_outback_spc_iii_5000_48_output_frequency
+                name: Output frequency
+                icon: mdi:waveform
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Inverter status
+            icon: mdi:information-outline
+          - type: entities
+            title: Raw status
+            show_header_toggle: false
+            entities:
+              - entity: sensor.alpha_outback_spc_iii_5000_48_operating_mode_code
+                name: Operating mode code
+                icon: mdi:cog
+              - entity: sensor.alpha_outback_spc_iii_5000_48_event_flags
+                name: Event flags (hex)
+                icon: mdi:alert-circle-outline
+          - type: markdown
+            content: >-
+              Mode and event flags are raw inverter codes. Power readings are
+              live watts, not cumulative energy in kWh.

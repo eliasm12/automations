@@ -1,0 +1,29 @@
+type: markdown
+title: Current inverter source
+entity_id:
+  - sensor.alpha_outback_spc_iii_5000_48_operating_mode_code
+  - sensor.alpha_outback_spc_iii_5000_48_pv_power
+content: |
+  {% set mode = states('sensor.alpha_outback_spc_iii_5000_48_operating_mode_code') %}
+  {% set pv = states('sensor.alpha_outback_spc_iii_5000_48_pv_power') %}
+  {% if mode == 'L' %}
+  # 🔌 LINE MODE
+  <ha-alert alert-type="info">The inverter reports Line mode.</ha-alert>
+  {% elif mode == 'B' %}
+  # 🔋 BATTERY MODE
+  <ha-alert alert-type="warning">The inverter reports Battery mode.</ha-alert>
+  {% elif mode in ['unknown', 'unavailable'] %}
+  # ⚠️ MODE DATA UNAVAILABLE
+  Check the MQTT sensor and inverter app.
+  {% else %}
+  # ℹ️ MODE {{ mode }}
+  This mode code has not been identified yet.
+  {% endif %}
+  ---
+  {% if pv | float(0) > 0 %}
+  ## ☀️ SOLAR PRODUCING · {{ pv }} W
+  {% elif pv in ['unknown', 'unavailable'] %}
+  Solar reading unavailable.
+  {% else %}
+  Solar idle · {{ pv }} W
+  {% endif %}

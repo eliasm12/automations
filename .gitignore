@@ -1,0 +1,15 @@
+__pycache__/
+.venv/
+metrics/
+dist/
+laptop-metrics/
+
+# Local connection settings and device captures
+.env
+.env.*
+!.env.example
+options.json
+options.local.json
+*.local.json
+priority-test-results/
+last-command.json

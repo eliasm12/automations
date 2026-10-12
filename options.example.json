@@ -1,0 +1,8 @@
+{
+  "address": "",
+  "adapter": "hci0",
+  "pin": "",
+  "poll_seconds": 20,
+  "stale_seconds": 180,
+  "output_dir": "./laptop-metrics"
+}

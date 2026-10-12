@@ -1,0 +1,2 @@
+dbus-fast==2.44.5
+paho-mqtt==2.1.0

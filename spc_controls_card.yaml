@@ -1,0 +1,10 @@
+type: entities
+title: Source priorities
+show_header_toggle: false
+entities:
+  - entity: select.alpha_outback_spc_iii_5000_48_output_source_priority
+    name: Output priority
+    icon: mdi:swap-horizontal
+  - entity: select.alpha_outback_spc_iii_5000_48_charger_source_priority
+    name: Battery charging source
+    icon: mdi:battery-charging
