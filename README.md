@@ -1,4 +1,4 @@
-# SPC III Bluetooth logger
+# Local Inverter
 
 A small Python poller and Home Assistant OS add-on for the Alpha OutBack
 SPC III 5000-48. Connection settings are supplied through configuration; no
